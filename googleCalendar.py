@@ -62,10 +62,11 @@ def subscribe_to_google_calendar_push_notifications():
     calendarId = 'primary' # os.getenv('GOOGLE_CLOUD_CALENDAR_ID', 'primary')
 
     try:
-        response=calendar_api.events().watch(
+        request=calendar_api.events().watch(
             calendarId=calendarId,
             body=event,
         )
+        response = request.execute() 
         print(f'Event notifications set up successfully at: {event} calendarId={calendarId}')
         print(f'Response: {response}')
     except HttpError as error:
