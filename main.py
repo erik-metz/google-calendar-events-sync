@@ -1,4 +1,5 @@
 import os
+from typing import List
 
 from dotenv import load_dotenv
 from fastapi import FastAPI
@@ -31,7 +32,7 @@ async def create_item(item: Item):
     return item
 
 # Define a GET endpoint to retrieve all items (for testing)
-@app.get("/items/", response_model=list[Item])
+@app.get("/items/", response_model=List[Item])
 async def read_items():
     return items
 
