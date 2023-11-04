@@ -58,7 +58,7 @@ def subscribe_to_google_calendar_push_notifications():
         calendar_api.events().watch(
             calendarId='primary',  # Calendar ID
             body=event,
-            callback=handle_notification_response
+            # callback=handle_notification_response
         )
     except HttpError as error:
         print(f'Error setting up event notifications: {error}')
