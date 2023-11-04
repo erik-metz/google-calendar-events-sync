@@ -12,7 +12,6 @@ from pydantic import BaseModel
 
 load_dotenv()
 
-# Create a Pydantic model for the GoogleEvent data
 class GoogleEvent(BaseModel):
     id: str
     summary: str
@@ -25,7 +24,6 @@ def load_credentials_from_env():
     if not credentials_json:
         raise ValueError("GOOGLE_CLOUD_SERVICE_ACCOUNT_KEY environment variable is not set.")
     
-    # Load credentials using the google.oauth2 library
     credentials = service_account.Credentials.from_service_account_info(
         json.loads(credentials_json),
         scopes=['https://www.googleapis.com/auth/calendar'],
@@ -40,7 +38,7 @@ def subscribe_to_google_calendar_push_notifications():
     if not base_url:
         raise ValueError("BASE_URL environment variable is not set.")
     
-    webhook_url = f'{base_url}/api/calendar-webhook'
+    webhook_url = f'{base_url}/google-calendar-events-webhook'
 
     event = {
         'id': uuid4().hex,
@@ -48,17 +46,11 @@ def subscribe_to_google_calendar_push_notifications():
         'address': webhook_url
     }
 
-    def handle_notification_response(request_id, response, exception):
-        if exception is not None:
-            print(f'Error setting up event notifications: {exception}')
-        else:
-            print(f'Event notifications set up successfully: {response}')
-
     try:
         calendar_api.events().watch(
             calendarId='primary',  # Calendar ID
             body=event,
-            # callback=handle_notification_response
         )
+        print('Event notifications set up successfully')
     except HttpError as error:
         print(f'Error setting up event notifications: {error}')
