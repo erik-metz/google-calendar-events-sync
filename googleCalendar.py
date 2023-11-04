@@ -80,8 +80,8 @@ async def get_google_events():
 
     params = {
         'calendarId': os.getenv('GOOGLE_CLOUD_CALENDAR_ID', 'primary'),
-        'timeMin': tomorrow.isoformat(),
-        'timeMax': max_date.isoformat()
+        # 'timeMin': tomorrow.isoformat(),
+        # 'timeMax': max_date.isoformat()
     }
     events = await calendar_api.events().list(**params).execute()
     return events
