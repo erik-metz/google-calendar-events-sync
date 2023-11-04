@@ -40,7 +40,7 @@ async def root():
 
 @app.get('/events/')
 async def get_events():
-    return get_google_events()
+    return await get_google_events()
 
 # Define a POST endpoint to handle google calendar events
 @app.post('/google-calendar-events-webhook/', response_model=Google_Calendar_Event)
