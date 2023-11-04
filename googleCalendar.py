@@ -51,6 +51,6 @@ def subscribe_to_google_calendar_push_notifications():
             calendarId=os.getenv('GOOGLE_CLOUD_CALENDAR_ID', 'primary'),
             body=event,
         )
-        print(f'Event notifications set up successfully at: {event} {os.getenv("GOOGLE_CLOUD_CALENDAR_ID", "primary")}')
+        print(f'Event notifications set up successfully at: {event} calendarId={os.getenv("GOOGLE_CLOUD_CALENDAR_ID", "primary")}')
     except HttpError as error:
         print(f'Error setting up event notifications: {error}')
