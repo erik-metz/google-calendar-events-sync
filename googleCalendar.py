@@ -1,24 +1,15 @@
-import json
 import os
 from datetime import datetime
 from typing import List
 from uuid import uuid4
 
 from dotenv import load_dotenv
+from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from pydantic import BaseModel
 
 load_dotenv()
-
-
-def load_credentials_from_env():
-    credentials_json = os.getenv('GOOGLE_CLOUD_SERVICE_ACCOUNT_KEY')
-    if not credentials_json:
-        raise ValueError("GOOGLE_CLOUD_SERVICE_ACCOUNT_KEY environment variable is not set.")
-    
-    credentials = json.loads(credentials_json)
-    return credentials
 
 # Create a Pydantic model for the GoogleEvent data
 class GoogleEvent(BaseModel):
@@ -28,10 +19,27 @@ class GoogleEvent(BaseModel):
     startDateTime: datetime
     endDateTime: datetime
 
+def load_credentials_from_env():
+    credentials_json = os.getenv('GOOGLE_CLOUD_SERVICE_ACCOUNT_KEY')
+    if not credentials_json:
+        raise ValueError("GOOGLE_CLOUD_SERVICE_ACCOUNT_KEY environment variable is not set.")
+    
+    # Load credentials using the google.oauth2 library
+    credentials = service_account.Credentials.from_service_account_info(
+        json.loads(credentials_json),
+        scopes=['https://www.googleapis.com/auth/calendar'],
+    )
+    return credentials
 
 def subscribe_to_google_calendar_push_notifications():
-    calendar_api = build('calendar', 'v3', credentials=load_credentials_from_env())
-    webhook_url = f'{os.environ.get("BASE_URL")}/api/calendar-webhook'
+    credentials = load_credentials_from_env()
+    calendar_api = build('calendar', 'v3', credentials=credentials)
+    
+    base_url = os.getenv("BASE_URL")
+    if not base_url:
+        raise ValueError("BASE_URL environment variable is not set.")
+    
+    webhook_url = f'{base_url}/api/calendar-webhook'
 
     event = {
         'id': uuid4().hex,
@@ -45,7 +53,6 @@ def subscribe_to_google_calendar_push_notifications():
         else:
             print(f'Event notifications set up successfully: {response}')
 
-
     try:
         calendar_api.events().watch(
             calendarId='primary',  # Calendar ID
@@ -54,6 +61,3 @@ def subscribe_to_google_calendar_push_notifications():
         )
     except HttpError as error:
         print(f'Error setting up event notifications: {error}')
-
-
-# The rest of your code remains unchanged
