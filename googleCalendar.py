@@ -83,5 +83,10 @@ async def get_google_events():
         # 'timeMin': tomorrow.isoformat(),
         # 'timeMax': max_date.isoformat()
     }
-    events = await calendar_api.events().list(**params).execute()
-    return events
+    
+    try:
+        events = await calendar_api.events().list(**params).execute()
+        return events
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return None
