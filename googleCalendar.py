@@ -22,7 +22,7 @@ class GoogleEvent(BaseModel):
 def load_credentials_from_env():
     credentials_json = os.getenv('GOOGLE_CLOUD_SERVICE_ACCOUNT_KEY')
     if not credentials_json:
-        raise ValueError("GOOGLE_CLOUD_SERVICE_ACCOUNT_KEY environment variable is not set.")
+        raise ValueError('GOOGLE_CLOUD_SERVICE_ACCOUNT_KEY environment variable is not set.')
     
     credentials = service_account.Credentials.from_service_account_info(
         json.loads(credentials_json),
@@ -34,9 +34,9 @@ def subscribe_to_google_calendar_push_notifications():
     credentials = load_credentials_from_env()
     calendar_api = build('calendar', 'v3', credentials=credentials)
     
-    base_url = os.getenv("BASE_URL")
+    base_url = os.getenv('BASE_URL')
     if not base_url:
-        raise ValueError("BASE_URL environment variable is not set.")
+        raise ValueError('BASE_URL environment variable is not set.')
     
     webhook_url = f'{base_url}/google-calendar-events-webhook'
 
@@ -48,9 +48,9 @@ def subscribe_to_google_calendar_push_notifications():
 
     try:
         calendar_api.events().watch(
-            calendarId='primary',  # Calendar ID
+            calendarId=os.getenv('GOOGLE_CLOUD_CALENDAR_ID','primary'),
             body=event,
         )
-        print('Event notifications set up successfully')
+        print(f'Event notifications set up successfully at: {event}')
     except HttpError as error:
         print(f'Error setting up event notifications: {error}')
