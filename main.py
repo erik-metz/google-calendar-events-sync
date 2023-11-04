@@ -44,4 +44,4 @@ class Google_Calendar_Event(BaseModel):
 @app.post('/google-calendar-events-webhook/', response_model=Google_Calendar_Event)
 async def webhook(event: Google_Calendar_Event):
     print(event)
-    return True
+    return event
