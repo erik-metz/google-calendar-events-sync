@@ -1,7 +1,7 @@
 import json
 import os
-from datetime import datetime
-from typing import List
+from datetime import datetime, timedelta
+from typing import Dict, List
 from uuid import uuid4
 
 from dotenv import load_dotenv
@@ -18,6 +18,18 @@ class GoogleEvent(BaseModel):
     description: str
     startDateTime: datetime
     endDateTime: datetime
+
+class Google_Calendar_Event(BaseModel):
+    address: str
+    expiration: str
+    id: str
+    kind: str
+    params: Dict[str, str]
+    payload: bool
+    resourceId: str
+    resourceUri: str
+    token: str
+    type: str
 
 def load_credentials_from_env():
     credentials_json = os.getenv('GOOGLE_CLOUD_SERVICE_ACCOUNT_KEY')
@@ -54,3 +66,22 @@ def subscribe_to_google_calendar_push_notifications():
         print(f'Event notifications set up successfully at: {event} calendarId={os.getenv("GOOGLE_CLOUD_CALENDAR_ID", "primary")}')
     except HttpError as error:
         print(f'Error setting up event notifications: {error}')
+
+
+async def get_google_events():
+    credentials = load_credentials_from_env()
+    calendar_api = build('calendar', 'v3', credentials=credentials)
+
+
+    today = datetime.now()
+    tomorrow = today + timedelta(days=1)
+    tomorrow = tomorrow.replace(hour=8, minute=0, second=0, microsecond=0)
+    max_date = tomorrow + timedelta(days=14)
+
+    params = {
+        'calendarId': os.getenv('GOOGLE_CLOUD_CALENDAR_ID', 'primary'),
+        'timeMin': tomorrow.isoformat(),
+        'timeMax': max_date.isoformat()
+    }
+    events = await calendar_api.events().list(**params).execute()
+    return events

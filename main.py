@@ -1,12 +1,12 @@
 import os
-from typing import Dict
 
 from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.responses import RedirectResponse
-from pydantic import BaseModel
 
-from googleCalendar import subscribe_to_google_calendar_push_notifications
+from db import update_google_events
+from googleCalendar import (Google_Calendar_Event, get_google_events,
+                            subscribe_to_google_calendar_push_notifications)
 
 load_dotenv()
 
@@ -36,22 +36,14 @@ async def root():
 # async def read_items():
 #     return items
 
-class Google_Calendar_Event(BaseModel):
-    address: str
-    expiration: str
-    id: str
-    kind: str
-    params: Dict[str, str]
-    payload: bool
-    resourceId: str
-    resourceUri: str
-    token: str
-    type: str
 
 
+@app.get('/events/')
+async def get_events():
+    return await get_google_events()
 
 # Define a POST endpoint to handle google calendar events
 @app.post('/google-calendar-events-webhook/', response_model=Google_Calendar_Event)
 async def webhook(event: Google_Calendar_Event):
-    print(event)
+    update_google_events(event)
     return event
