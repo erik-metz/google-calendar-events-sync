@@ -59,7 +59,7 @@ def subscribe_to_google_calendar_push_notifications():
         'type': 'web_hook',
         'address': webhook_url
     }
-    calendarId = 'primary', # os.getenv('GOOGLE_CLOUD_CALENDAR_ID', 'primary')
+    calendarId = 'primary' # os.getenv('GOOGLE_CLOUD_CALENDAR_ID', 'primary')
 
     try:
         response=calendar_api.events().watch(
