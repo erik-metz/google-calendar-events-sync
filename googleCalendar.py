@@ -12,6 +12,8 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from pydantic import BaseModel
 
+from utils import get_dateTime_from_millis
+
 load_dotenv()
 
 class GoogleEvent(BaseModel):
@@ -68,7 +70,9 @@ def subscribe_to_google_calendar_push_notifications():
         )
         response = request.execute() 
         print(f'Event notifications set up successfully at: {event} calendarId={calendarId}')
-        print(f'Response: {response}')
+        print(f'\nnotification_channel:\n\tid: {response["id"]}\n\tresourceId: {response["resourceId"]}\n\texpiration: {get_dateTime_from_millis(int(response["expiration"]))}]')
+
+        return response
     except HttpError as error:
         print(f'Error setting up event notifications: {error}')
 

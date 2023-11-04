@@ -11,7 +11,7 @@ from googleCalendar import (Google_Calendar_Event, get_google_events,
 load_dotenv()
 
 app = FastAPI()
-subscribe_to_google_calendar_push_notifications()
+notification_channel=subscribe_to_google_calendar_push_notifications()
 
 @app.post('/google-calendar-events-webhook/', response_model=Google_Calendar_Event)
 async def webhook(event: Google_Calendar_Event):
