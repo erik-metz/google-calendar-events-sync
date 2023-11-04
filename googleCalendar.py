@@ -62,7 +62,7 @@ def subscribe_to_google_calendar_push_notifications():
 
     try:
         response=calendar_api.events().watch(
-            calendarId=os.getenv('GOOGLE_CLOUD_CALENDAR_ID', 'primary'),
+            calendarId='primary', # os.getenv('GOOGLE_CLOUD_CALENDAR_ID', 'primary'),
             body=event,
         )
         print(f'Event notifications set up successfully at: {event} calendarId={os.getenv("GOOGLE_CLOUD_CALENDAR_ID", "primary")}')
