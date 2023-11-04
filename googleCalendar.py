@@ -90,7 +90,9 @@ async def get_google_events():
     
     try:
         loop = asyncio.get_event_loop()
-        events_result = await loop.run_in_executor(executor, calendar_api.events().list, **params).execute()
+        events_result = await loop.run_in_executor(executor, calendar_api.events().list(**params).execute() )
+        ev = calendar_api.events().list(**params).execute() 
+        print(f'ev {ev}')
         events = events_result.get('items', [])
 
         if not events:
