@@ -1,10 +1,11 @@
 import json
 import os
 from datetime import datetime, timedelta
-from typing import Dict, List
+from typing import Dict
 from uuid import uuid4
 
 from dotenv import load_dotenv
+from fastapi import HTTPException
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
@@ -80,12 +81,19 @@ async def get_google_events():
 
     params = {
         'calendarId': os.getenv('GOOGLE_CLOUD_CALENDAR_ID', 'primary'),
-        # 'timeMin': tomorrow.isoformat(),
-        # 'timeMax': max_date.isoformat()
+        'timeMin': today.isoformat() + 'Z',
+        'timeMax': max_date.isoformat() + 'Z'
     }
     
     try:
-        return calendar_api.events().list(**params).execute()   
+        events_result = calendar_api.events().list(**params).execute() 
+        events = events_result.get('items', [])
+
+        if not events:
+            print('No upcoming events found.')
+            return
+
+        return events_result 
     except Exception as e:
-        print(f"An error occurred: {e}")
-        return None
+        print(f'An error occurred: {e}')
+        raise HTTPException(status_code=501, detail='Please try again later')
