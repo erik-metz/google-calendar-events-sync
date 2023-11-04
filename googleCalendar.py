@@ -86,7 +86,7 @@ async def get_google_events():
     }
     
     try:
-        events_result = calendar_api.events().list(**params).execute() 
+        events_result = await calendar_api.events().list(**params).execute() 
         events = events_result.get('items', [])
 
         if not events:
