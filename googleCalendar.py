@@ -1,11 +1,10 @@
-import asyncio
 import json
 import os
-from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta
 from typing import Dict
 from uuid import uuid4
 
+import pytz
 from dotenv import load_dotenv
 from fastapi import HTTPException
 from google.oauth2 import service_account
@@ -72,7 +71,22 @@ def subscribe_to_google_calendar_push_notifications():
 
 
 async def get_google_events():
-    executor = ThreadPoolExecutor()
+    def extract_event_info(event,timeZone):
+        start_time = event['start'].get('dateTime', event['start'].get('date', 'No start time available'))
+        end_time = event['end'].get('dateTime', event['end'].get('date', 'No end time available'))
+
+        if 'T' not in start_time:
+            tz = pytz.timezone(timeZone)
+            start_time = tomorrow.replace(hour=0, minute=0, second=0, microsecond=0).astimezone(tz).isoformat()
+            end_time = tomorrow.replace(hour=23, minute=59, second=59, microsecond=0).astimezone(tz).isoformat()
+
+        return {
+            'title': event.get('summary', 'No title available'),
+            'description': event.get('description', 'No description available'),
+            'start_time': start_time,
+            'end_time': end_time
+        }
+    
     credentials = load_credentials_from_env()
     calendar_api = build('calendar', 'v3', credentials=credentials)
 
@@ -89,17 +103,22 @@ async def get_google_events():
     }
     
     try:
-        loop = asyncio.get_event_loop()
-        events_result = await loop.run_in_executor(executor, calendar_api.events().list(**params).execute() )
-        ev = calendar_api.events().list(**params).execute() 
-        print(f'ev {ev}')
-        events = events_result.get('items', [])
+        events_result = calendar_api.events().list(**params).execute()
+        
+        if 'items' not in events_result:
+            print('No upcoming events found.')
+            return
 
+        events = events_result.get('items', [])
+        timeZone = events_result.get('timeZone', 'Europe/Berlin')
+        
         if not events:
             print('No upcoming events found.')
             return
 
-        return events_result 
+        extracted_events = [extract_event_info(event,timeZone) for event in events]
+        
+        return extracted_events
     except Exception as e:
         print(f'An error occurred: {e}')
         raise HTTPException(status_code=500, detail='Please try again later.')

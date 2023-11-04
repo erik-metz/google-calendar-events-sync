@@ -1,7 +1,7 @@
 import os
 
 from dotenv import load_dotenv
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.responses import RedirectResponse
 
 from db import update_google_events
@@ -40,6 +40,7 @@ async def root():
 
 @app.get('/events/')
 async def get_events():
+    raise HTTPException(status_code=401)
     return await get_google_events()
 
 # Define a POST endpoint to handle google calendar events
