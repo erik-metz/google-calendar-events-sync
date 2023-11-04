@@ -85,8 +85,7 @@ async def get_google_events():
     }
     
     try:
-        events = await calendar_api.events().list(**params).execute()
-        return events
+        return calendar_api.events().list(**params).execute()   
     except Exception as e:
         print(f"An error occurred: {e}")
         return None
