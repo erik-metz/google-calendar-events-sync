@@ -10,6 +10,16 @@ from googleapiclient.errors import HttpError
 from pydantic import BaseModel
 
 load_dotenv()
+
+
+def load_credentials_from_env():
+    credentials_json = os.getenv('GOOGLE_CLOUD_SERVICE_ACCOUNT_KEY')
+    if not credentials_json:
+        raise ValueError("GOOGLE_CLOUD_SERVICE_ACCOUNT_KEY environment variable is not set.")
+    
+    credentials = json.loads(credentials_json)
+    return credentials
+
 # Create a Pydantic model for the GoogleEvent data
 class GoogleEvent(BaseModel):
     id: str
@@ -18,17 +28,9 @@ class GoogleEvent(BaseModel):
     startDateTime: datetime
     endDateTime: datetime
 
-def get_calendar_api():
-    service_account_key = json.loads(os.environ.get("GOOGLE_CLOUD_SERVICE_ACCOUNT_KEY") or '{}')
-    credentials = service_account_key
-
-    # Create a new Calendar instance
-    calendar_api = build('calendar', 'v3', credentials=credentials)
-
-    return calendar_api
 
 def subscribe_to_google_calendar_push_notifications():
-    calendar_api = get_calendar_api()
+    calendar_api = build('calendar', 'v3', credentials=load_credentials_from_env())
     webhook_url = f'{os.environ.get("BASE_URL")}/api/calendar-webhook'
 
     event = {
