@@ -1,10 +1,20 @@
-from fastapi import FastAPI, HTTPException
+import os
+
+from dotenv import load_dotenv
+from fastapi import FastAPI
+from fastapi.responses import RedirectResponse
 from pydantic import BaseModel
 
 from googleCalendar import subscribe_to_google_calendar_push_notifications
 
+load_dotenv()
+
 app = FastAPI()
 subscribe_to_google_calendar_push_notifications()
+
+@app.get("/")
+async def root():
+    return RedirectResponse(url=os.environ.get("REDIRECT_URL"))
 
 # Create a Pydantic model to define the expected data in the POST request
 class Item(BaseModel):
