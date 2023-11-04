@@ -1,5 +1,7 @@
+import asyncio
 import json
 import os
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta
 from typing import Dict
 from uuid import uuid4
@@ -70,6 +72,7 @@ def subscribe_to_google_calendar_push_notifications():
 
 
 async def get_google_events():
+    executor = ThreadPoolExecutor()
     credentials = load_credentials_from_env()
     calendar_api = build('calendar', 'v3', credentials=credentials)
 
@@ -86,7 +89,8 @@ async def get_google_events():
     }
     
     try:
-        events_result = await calendar_api.events().list(**params).execute() 
+        loop = asyncio.get_event_loop()
+        events_result = await loop.run_in_executor(executor, calendar_api.events().list, **params).execute()
         events = events_result.get('items', [])
 
         if not events:
@@ -96,4 +100,4 @@ async def get_google_events():
         return events_result 
     except Exception as e:
         print(f'An error occurred: {e}')
-        raise HTTPException(status_code=501, detail='Please try again later')
+        raise HTTPException(status_code=500, detail='Please try again later.')
