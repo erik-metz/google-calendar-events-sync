@@ -1,5 +1,5 @@
 import os
-from typing import List
+from typing import Dict
 
 from dotenv import load_dotenv
 from fastapi import FastAPI
@@ -37,8 +37,18 @@ async def root():
 #     return items
 
 class Google_Calendar_Event(BaseModel):
-    name: str
-    description: str = None
+    address: str
+    expiration: str
+    id: str
+    kind: str
+    params: Dict[str, str]
+    payload: bool
+    resourceId: str
+    resourceUri: str
+    token: str
+    type: str
+
+
 
 # Define a POST endpoint to handle google calendar events
 @app.post('/google-calendar-events-webhook/', response_model=Google_Calendar_Event)
